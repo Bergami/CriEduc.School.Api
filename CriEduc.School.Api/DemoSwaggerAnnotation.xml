@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CriEduc.School.Api</name>
+    </assembly>
+    <members>
+        <member name="M:CriEduc.School.Api.Controllers.TeacherController.Register(CriEduc.School.Border.Dtos.Teacher.CreateTheacherRequest,CriEduc.School.Border.UseCases.ICreateTheacherUseCase)">
+            <summary>
+            Registra um professor ou professora na base de dados
+            </summary>        
+        </member>
+    </members>
+</doc>

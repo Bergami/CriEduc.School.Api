@@ -1,0 +1,5 @@
+FROM postgres:14-alpine
+
+LABEL author="Wander Vinicius Bergami"
+LABEL description="Postgres Image for CriEducShool"
+LABEL version="1.0"

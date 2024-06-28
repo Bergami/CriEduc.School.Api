@@ -1,0 +1,76 @@
+version: '3.9'
+
+services:
+  dcs-postgres:
+    ports:
+      - 5432:5432
+    restart: unless-stopped
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+      # copy the sql script to create tables
+      - ./Scripts/School.sql:/docker-entrypoint-initdb.d/School.sql
+      - ./Scripts/Teacher.sql:/docker-entrypoint-initdb.d/Teacher.sql
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+    build:
+      context: .
+      dockerfile: dockerfile-db
+      
+  dcs-pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: dcs-pgadmin
+    restart: always
+    depends_on:
+      - dcs-postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: wander.bergami@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: 123456
+    ports:
+      - 8080:80
+    volumes:
+      - ./data/pgadmin:/var/lib/pgadmin
+
+  dcs-jaeger:
+    image: jaegertracing/all-in-one:latest   
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=:9411
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - 6831:6831/udp
+      - 6832:6832/udp
+      - 5778:5778
+      - 16686:16686
+      - 14268:14268
+      - 14269:14269
+      - 14250:14250
+      - 9411:9411
+      - 4317:4317
+      - 4318:4318
+
+  dcs-prometheus:
+    image: prom/prometheus
+    container_name: prometheus   
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+    volumes:
+       - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml" 
+
+  dcs-grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=123456
+    volumes:
+      - ./grafana:/etc/grafana/provisioning/datasources
+
+networks:
+  default:
+    name: local-network
+    external: true

@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CriEduc.School.Border</name>
+    </assembly>
+    <members>
+        <member name="P:CriEduc.School.Border.Dtos.Teacher.CreateTheacherRequest.Name">
+            <summary>
+            Nome do professor / professora
+            </summary>
+        </member>
+        <member name="P:CriEduc.School.Border.Dtos.Teacher.CreateTheacherRequest.Birth">
+            <summary>
+            Data de nascimento
+            </summary>
+            <example>2022-03-28T15:35:32.384Z</example>
+        </member>
+        <member name="P:CriEduc.School.Border.Dtos.Teacher.CreateTheacherRequest.Specialty">
+            <summary>
+            Especialidade
+            </summary>
+        </member>
+        <member name="P:CriEduc.School.Border.Dtos.Teacher.CreateTheacherRequest.Workload">
+            <summary>
+            Carga horária
+            </summary>
+        </member>
+        <member name="P:CriEduc.School.Border.Dtos.Teacher.CreateTheacherRequest.WorkPeriod">
+            <summary>
+            Período em que irá trabalhar
+            </summary>
+        </member>
+        <member name="P:CriEduc.School.Border.Dtos.Teacher.CreateTheacherResponse.Id">
+            <summary>
+            Identificador do registro criado
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,8 @@
+DROP TYPE IF EXISTS School;
+CREATE TABLE School
+(
+    Id UUID PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL,
+    Description VARCHAR(255),
+    Type VARCHAR(255)
+);
