@@ -23,18 +23,20 @@ namespace CriEduc.School.Api.Configuration
             });
 
             // UseCase
-            services.AddScoped<ICreateTeacherUseCase, CreateTheacherUseCase>();
+            services.AddScoped<ICreateTeacherUseCase, CreateTeacherUseCase>();
             services.AddScoped<IGetTeacherUseCase, GetTeacherUseCase>();
             services.AddScoped<ISearchTeacherUseCase, SearchTeacherUseCase>();
+            services.AddScoped<IUpdateTeacherUseCase, UpdateTeacherUseCase>();
 
             services.AddScoped<IActionResultConverter, ActionResultConverter>();
             
-
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<ITeachersRepository, TeachersRepository>();
 
             //Validation
-            services.AddScoped<IValidator<CreateTeacherRequest>, CreateTheacherValidation>();
+            services.AddScoped<IValidator<CreateTeacherRequest>, CreateTeacherValidation>();
+            services.AddScoped<IValidator<TeacherRequest>, TeacherRequestValidation>();
+            services.AddScoped<IValidator<UpdateTeacherRequest>, UpdateTeacherValidation>();
 
             return services;
         }

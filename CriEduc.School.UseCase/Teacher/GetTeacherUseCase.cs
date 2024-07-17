@@ -14,9 +14,9 @@ public class GetTeacherUseCase : IGetTeacherUseCase
     private readonly ITeachersRepository _teachersRepository;
     private readonly Tracer _tracer;
    
-    private readonly ILogger<CreateTheacherUseCase> _logger;
+    private readonly ILogger<CreateTeacherUseCase> _logger;
     public GetTeacherUseCase(ITeachersRepository teachersRepository, 
-                            ILogger<CreateTheacherUseCase> logger,
+                            ILogger<CreateTeacherUseCase> logger,
                             Tracer tracer)
     {       
         _teachersRepository = teachersRepository;   
@@ -40,9 +40,9 @@ public class GetTeacherUseCase : IGetTeacherUseCase
 
         if (teachers == null)
         {
-            string message = string.Format(Message.NotFound, request.Id);
-            
-            return new UseCaseResponse<GetTeacherResponse>().SetNotFound(message, new List<ErrorMessage> { new ErrorMessage(CodeError.NotFound, message) });
+            var error = new ErrorMessage(CodeError.NotFound, Message.NotFoundErrorTeacher(request.Id)); 
+
+            return new UseCaseResponse<GetTeacherResponse>().SetNotFound(nameof(GetTeacherUseCase), new List<ErrorMessage> { error });
         }
 
         _logger.LogInformation("Obteve o registro", request);

@@ -55,17 +55,45 @@ namespace CriEduc.School.Api.Controllers
         }
 
         /// <summary>
-        /// Register a teacher in database        
+        /// Create a teacher in database        
         /// </summary>        
-        [HttpPost("register")]
+        [HttpPost]
         [ProducesResponseType(typeof(CreateTeacherResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(CreateTeacherResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Register([FromBody] CreateTeacherRequest request, [FromServices] ICreateTeacherUseCase createTeacherUseCase)
+        public async Task<IActionResult> Create([FromBody] CreateTeacherRequest request, [FromServices] ICreateTeacherUseCase createTeacherUseCase)
         {
             var result = await createTeacherUseCase.Execute(request);
 
             return _actionResultConverter.Convert(result);            
+        }
+
+        [HttpPut]
+        [ProducesResponseType(typeof(CreateTeacherResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CreateTeacherResponse), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]        
+        public async Task<IActionResult> Update([FromQuery] Guid id,[FromBody] UpdateTeacherRequest request, [FromServices] IUpdateTeacherUseCase updateTeacherUseCase)
+        {
+            request.Id = id;
+
+            var result = await updateTeacherUseCase.Execute(request);
+
+            return _actionResultConverter.Convert(result);
+        }
+
+        /// <summary>
+        /// Delete a teacher in database        
+        /// </summary>        
+        [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(CreateTeacherResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CreateTeacherResponse), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete(Guid id, [FromServices] IDeleteTeacherUseCase deleteTeacherUseCase)
+        {
+            var result = await deleteTeacherUseCase.Execute(id);
+
+            return _actionResultConverter.Convert(result);
         }
     }
 }

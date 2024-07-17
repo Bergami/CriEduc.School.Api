@@ -19,6 +19,11 @@ namespace CriEduc.School.Border.Shared
             return SetStatus(UseCaseResponseKind.Sucess);
         }
 
+        public UseCaseResponse<T> SetSuccessNoContent()
+        {
+            return SetStatus(UseCaseResponseKind.NoContent);
+        }
+
         public UseCaseResponse<T> SetBadResquest( string errorMessage = null, IEnumerable<ErrorMessage> erros = null)
         {
             return SetStatus(UseCaseResponseKind.BadRequest, errorMessage, erros);

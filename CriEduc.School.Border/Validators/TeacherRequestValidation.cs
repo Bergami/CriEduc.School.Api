@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace CriEduc.School.Border.Validators
 {
-    public class CreateTheacherValidation : AbstractValidator<CreateTeacherRequest>
+    public class TeacherRequestValidation : AbstractValidator<TeacherRequest>
     {
-        public CreateTheacherValidation()
+        public TeacherRequestValidation()
         {
             RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.WorkPeriod).NotEmpty();

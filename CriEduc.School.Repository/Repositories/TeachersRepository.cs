@@ -22,7 +22,7 @@ namespace CriEduc.School.Repository.Repositories
             DynamicParameters parameter = new DynamicParameters();
             parameter.Add("@Id", id, DbType.Guid);
 
-            return await _session.Connection.QueryFirstAsync<GetTeacherResponse>(TeacherStatmentSql.GetTeacherById, parameter, _session.Transaction);
+            return await _session.Connection.QueryFirstOrDefaultAsync<GetTeacherResponse>(TeacherStatmentSql.GetTeacherById, parameter);
         }
 
         public async Task<IEnumerable<GetTeacherResponse>> Search(SearchTeacherRequest request)
@@ -30,7 +30,7 @@ namespace CriEduc.School.Repository.Repositories
             var parameters = CreateFilterParameter(request);
             var query = TeacherStatmentSql.SearchTeacher(request);
 
-            return await _session.Connection.QueryAsync<GetTeacherResponse>(query, parameters, _session.Transaction);
+            return await _session.Connection.QueryAsync<GetTeacherResponse>(query, parameters);
         }
 
         public async Task<CreateTeacherResponse> Save(CreateTeacherRequest request)
@@ -41,9 +41,9 @@ namespace CriEduc.School.Repository.Repositories
 
             return new CreateTeacherResponse(resultId);
         }
-        public async Task<bool> UpdateTeacherAsync(UpdateTheacherRequest request, Guid id)
+        public async Task<bool> UpdateTeacherAsync(UpdateTeacherRequest request)
         {
-            var parameters = UpdateParameter(request, id);
+            var parameters = UpdateParameter(request);
            
             var result = await _session.Connection.ExecuteAsync(TeacherStatmentSql.UpdateTeacher, parameters, _session.Transaction);
 
@@ -51,33 +51,39 @@ namespace CriEduc.School.Repository.Repositories
         }
         private static DynamicParameters CreateInsertParameter(CreateTeacherRequest request)
         {
-            DynamicParameters parameter = new DynamicParameters();
+            var parameter = new DynamicParameters();
             parameter.Add("@Id", Guid.NewGuid(), DbType.Guid);
-            parameter.Add("@Name", request.Name, DbType.String);
-            parameter.Add("@Birth", request.Birth, DbType.Date);
-            parameter.Add("@Specialty", request.Specialty, DbType.String);
-            parameter.Add("@Workload", Enum.GetName(typeof(Period), request.WorkPeriod), DbType.Int32);
-            parameter.Add("@WorkPeriod", request.WorkPeriod.ToString(), DbType.String);
+
+            parameter.AddDynamicParams(TeacherRequestParameter(request));
 
             return parameter;
         }
 
-        private static DynamicParameters UpdateParameter(UpdateTheacherRequest request, Guid id)
+        private static DynamicParameters UpdateParameter(UpdateTeacherRequest request)
         {
-            DynamicParameters parameter = new DynamicParameters();
-            parameter.Add("@Id", Guid.NewGuid(), DbType.Guid);
+            var parameter = new DynamicParameters();
+            parameter.Add("@Id", request.Id, DbType.Guid);
+
+            parameter.AddDynamicParams(TeacherRequestParameter(request));
+
+            return parameter;
+        }
+
+        private static DynamicParameters TeacherRequestParameter(TeacherRequest request)
+        {
+            var parameter = new DynamicParameters();            
             parameter.Add("@Name", request.Name, DbType.String);
             parameter.Add("@Birth", request.Birth, DbType.Date);
             parameter.Add("@Specialty", request.Specialty, DbType.String);
-            parameter.Add("@Workload", Enum.GetName(typeof(Period), request.WorkPeriod), DbType.String);
-            parameter.Add("@WorkPeriod", request.WorkPeriod.ToString(), DbType.String);
+            parameter.Add("@WorkPeriod", Enum.GetName(typeof(Period), request.WorkPeriod), DbType.String);
+            parameter.Add("@Workload", request.Workload, DbType.Int32);
 
             return parameter;
         }
 
         private static DynamicParameters CreateFilterParameter(SearchTeacherRequest request)
         {
-            DynamicParameters parameter = new DynamicParameters();
+            var parameter = new DynamicParameters();
             parameter.Add("@Take", request.PagingParam.Take, DbType.Int16);
             parameter.Add("@Skip", request.PagingParam.Skip, DbType.Int16);
 
