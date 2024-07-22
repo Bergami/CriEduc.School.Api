@@ -8,8 +8,10 @@ namespace CriEduc.School.Repository.Interfaces
 
         Task<GetTeacherResponse> Get(Guid id);
 
-        Task<IEnumerable<GetTeacherResponse>> Search(SearchTeacherRequest request);
+        Task<(IEnumerable<GetTeacherResponse>, int)> Search(SearchTeacherRequest request);
 
         Task<bool> UpdateTeacherAsync(UpdateTeacherRequest request);
+
+        Task<bool> Delete(Guid id);
     }
 }

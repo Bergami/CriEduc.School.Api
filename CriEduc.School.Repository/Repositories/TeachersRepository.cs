@@ -25,12 +25,17 @@ namespace CriEduc.School.Repository.Repositories
             return await _session.Connection.QueryFirstOrDefaultAsync<GetTeacherResponse>(TeacherStatmentSql.GetTeacherById, parameter);
         }
 
-        public async Task<IEnumerable<GetTeacherResponse>> Search(SearchTeacherRequest request)
+        public async Task<(IEnumerable<GetTeacherResponse>, int)> Search(SearchTeacherRequest request)
         {
             var parameters = CreateFilterParameter(request);
             var query = TeacherStatmentSql.SearchTeacher(request);
+            var totalQuery = TeacherStatmentSql.SearchTeacherTotalCount(request);
 
-            return await _session.Connection.QueryAsync<GetTeacherResponse>(query, parameters);
+            var teacherResponse = await _session.Connection.QueryAsync<GetTeacherResponse>(query, parameters);
+
+            var teacherResponseTotal = await _session.Connection.QueryFirstAsync<int>(totalQuery, parameters);
+
+            return (teacherResponse, teacherResponseTotal);
         }
 
         public async Task<CreateTeacherResponse> Save(CreateTeacherRequest request)
@@ -49,6 +54,18 @@ namespace CriEduc.School.Repository.Repositories
 
             return result > 0;
         }
+
+        public async Task<bool> Delete(Guid id)
+        {
+            DynamicParameters parameter = new DynamicParameters();
+            parameter.Add("@Id", id, DbType.Guid);
+
+            var result = await _session.Connection.ExecuteAsync(TeacherStatmentSql.DeleteTeacherById, parameter);
+
+            return result > 0;
+        }
+
+        #region PrivateMethods
         private static DynamicParameters CreateInsertParameter(CreateTeacherRequest request)
         {
             var parameter = new DynamicParameters();
@@ -71,7 +88,7 @@ namespace CriEduc.School.Repository.Repositories
 
         private static DynamicParameters TeacherRequestParameter(TeacherRequest request)
         {
-            var parameter = new DynamicParameters();            
+            var parameter = new DynamicParameters();
             parameter.Add("@Name", request.Name, DbType.String);
             parameter.Add("@Birth", request.Birth, DbType.Date);
             parameter.Add("@Specialty", request.Specialty, DbType.String);
@@ -97,6 +114,8 @@ namespace CriEduc.School.Repository.Repositories
                 parameter.Add("@Specialty", request.Specialty, DbType.String);
 
             return parameter;
-        }       
+        }
+        #endregion
+
     }
 }

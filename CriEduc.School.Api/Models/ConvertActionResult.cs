@@ -3,6 +3,7 @@ using CriEduc.School.Border.Shared.Enum;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Serilog;
+using System.Reflection.PortableExecutable;
 
 namespace CriEduc.School.Api.Models
 {
@@ -13,14 +14,18 @@ namespace CriEduc.School.Api.Models
     public class ActionResultConverter : IActionResultConverter
     {
         private readonly string path;
+        private IHeaderDictionary? _headers;
 
         public ActionResultConverter(IHttpContextAccessor accessor)
         {
+            _headers = accessor.HttpContext?.Response.Headers;
+
             path = accessor.HttpContext.Request.Path;
         }
 
         public IActionResult Convert<T>(UseCaseResponse<T> response, bool noContentIfSucess = false)
         {
+            
             if (response is null)
                 return BuildeError(new[] { new ErrorMessage("0000", "ActionResultConverter Error") }, UseCaseResponseKind.InternalServerError);
 
@@ -28,7 +33,7 @@ namespace CriEduc.School.Api.Models
             if (response.Sucess())
                 return noContentIfSucess
                     ? new NoContentResult()
-                    : BuildSucessResult(response.Result!, response.Status);
+                    : BuildSucessResult(response.Result!, response.Status,  response.Headers);
 
             if (response.Result is not null)
                 return BuildeError(response.Result, response.Status);
@@ -63,15 +68,24 @@ namespace CriEduc.School.Api.Models
                 StatusCode = (int)httpStatus,
             };
         }
+      
+        private IActionResult BuildSucessResult(object data, UseCaseResponseKind status, Dictionary<string, string> headers = null)
+        {
+            ExistsHeaders(headers);
 
-       private static IActionResult BuildSucessResult(object data, UseCaseResponseKind status)
-       {
             return status switch
             {
-                UseCaseResponseKind.NoContent => new NoContentResult(),               
+                UseCaseResponseKind.NoContent => new NoContentResult(),
                 _ => new OkObjectResult(data),
             };
-       }
+        }
+
+        private void ExistsHeaders(Dictionary<string, string> headers)
+        {
+            if (headers != null)
+                foreach (var header in headers)
+                    _headers!.Add(header.Key, header.Value);
+        }
 
         private static HttpStatusCode GerErrorHttpStatusCode(UseCaseResponseKind status)
         {
@@ -85,5 +99,5 @@ namespace CriEduc.School.Api.Models
         }
 
        
-    }
+    }    
 }

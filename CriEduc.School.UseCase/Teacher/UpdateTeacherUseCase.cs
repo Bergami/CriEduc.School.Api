@@ -1,60 +1,47 @@
-﻿using CriEduc.School.Border.Dtos.Teacher;
+﻿using CriEduc.School.Border.Constants;
+using CriEduc.School.Border.Dtos.Teacher;
 using CriEduc.School.Border.Shared;
+using CriEduc.School.Border.Shared.Enum;
 using CriEduc.School.Border.UseCases;
 using CriEduc.School.Repository.Interfaces;
-using CriEduc.School.Border.Shared.Enum;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Trace;
-using CriEduc.School.Border.Constants;
-using FluentValidation;
-using CriEduc.School.Repository.UoW;
 
 namespace CriEduc.School.UseCase.Teacher
 {
-    public class UpdateTeacherUseCase : IUpdateTeacherUseCase
+    public class UpdateTeacherUseCase : UseCaseBase<UpdateTeacherRequest, UpdateTheacherResponse>,IUpdateTeacherUseCase
     {
         private readonly ITeachersRepository _teachersRepository;
-        private readonly ILogger<CreateTeacherUseCase> _logger;
-        private readonly IValidator<UpdateTeacherRequest> _validator;
-      
+             
         public UpdateTeacherUseCase(
             ITeachersRepository teachersRepository,
             ILogger<CreateTeacherUseCase> logger,
-            IValidator<UpdateTeacherRequest> validator)
+            IValidator<UpdateTeacherRequest> validator, 
+            Tracer tracer): base(logger, validator, tracer) 
         {
-            _teachersRepository = teachersRepository;
-            _logger = logger;      
-            _validator = validator;
+            _teachersRepository = teachersRepository;       
         }
-        public async Task<UseCaseResponse<UpdateTheacherResponse>> Execute(UpdateTeacherRequest request)
-        {
-            try
+        protected override async Task<UseCaseResponse<UpdateTheacherResponse>> ExecuteUseCaseAsync(UpdateTeacherRequest request)
+        {           
+         
+            if (await _teachersRepository.Get(request.Id) is null)
             {
-                await _validator.ValidateAndThrowAsync(request);
+                _logger.LogInformation(Message.NotFoundErrorTeacher(request.Id), request);
 
-                if (await _teachersRepository.Get(request.Id) is null)
-                {
-                    var error = new ErrorMessage(CodeError.NotFound, Message.NotFoundErrorTeacher(request.Id));
+                var error = new ErrorMessage(CodeError.NotFound, Message.NotFoundErrorTeacher(request.Id));
 
-                    return new UseCaseResponse<UpdateTheacherResponse>().SetNotFound(nameof(UpdateTeacherUseCase), new[] { error });
-                }
-             
-                return await UpdateTheacher(request);                
+                return new UseCaseResponse<UpdateTheacherResponse>().SetNotFound(nameof(UpdateTeacherUseCase), new[] { error });
             }
-            catch (ValidationException e)
-            {
-                var errors = e.Errors.Select(x => new ErrorMessage(x.ErrorCode, x.ErrorMessage));
 
-                return new UseCaseResponse<UpdateTheacherResponse>().SetBadResquest(Message.ValidateRequest, errors);
-            }
-        }
-
-        private async Task<UseCaseResponse<UpdateTheacherResponse>> UpdateTheacher(UpdateTeacherRequest request)
-        {
             if (!await _teachersRepository.UpdateTeacherAsync(request))
+            {
+                _logger.LogError(message: Message.InternalServerErrorTeacherUpdate, args: request);
+
                 return new UseCaseResponse<UpdateTheacherResponse>().SetStatus(UseCaseResponseKind.InternalServerError, Message.InternalServerErrorTeacherUpdate);
+            }
 
             return new UseCaseResponse<UpdateTheacherResponse>().SetSuccessNoContent();
-        }
+        }       
     }
 }

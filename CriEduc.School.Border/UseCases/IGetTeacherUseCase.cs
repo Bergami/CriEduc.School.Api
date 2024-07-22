@@ -3,7 +3,7 @@ using CriEduc.School.Border.Shared;
 
 namespace CriEduc.School.Border.UseCases;
 
-public interface IGetTeacherUseCase : IUseCase<GetTeacherRequest, GetTeacherResponse>    
+public interface IGetTeacherUseCase : IUseCase<Guid, GetTeacherResponse>    
 {
 }
 

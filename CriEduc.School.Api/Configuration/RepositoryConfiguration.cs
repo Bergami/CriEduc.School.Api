@@ -27,7 +27,8 @@ namespace CriEduc.School.Api.Configuration
             services.AddScoped<IGetTeacherUseCase, GetTeacherUseCase>();
             services.AddScoped<ISearchTeacherUseCase, SearchTeacherUseCase>();
             services.AddScoped<IUpdateTeacherUseCase, UpdateTeacherUseCase>();
-
+            services.AddScoped<IDeleteTeacherUseCase, DeleteTeacherUseCase>();
+            
             services.AddScoped<IActionResultConverter, ActionResultConverter>();
             
             services.AddTransient<IUnitOfWork, UnitOfWork>();
@@ -37,6 +38,8 @@ namespace CriEduc.School.Api.Configuration
             services.AddScoped<IValidator<CreateTeacherRequest>, CreateTeacherValidation>();
             services.AddScoped<IValidator<TeacherRequest>, TeacherRequestValidation>();
             services.AddScoped<IValidator<UpdateTeacherRequest>, UpdateTeacherValidation>();
+            services.AddScoped<IValidator<SearchTeacherRequest>, SearchTeacherRequestValidation>();            
+            services.AddScoped<IValidator<Guid>, GuidValidation>();
 
             return services;
         }

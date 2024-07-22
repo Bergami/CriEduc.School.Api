@@ -29,13 +29,7 @@ namespace CriEduc.School.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Get(Guid id, [FromServices] IGetTeacherUseCase getTeacherUseCase)
         {
-            using var activity = OpenTelemetryExtension.ActivitySource.StartActivity("GetTeacher");
-
-            activity?.SetTag("Id", id);
-            activity?.SetTag("User", "Wander Vinicius Bergami");
-            activity?.SetTag("baz", new int[] { 1, 2, 3 });
-
-            var result = await getTeacherUseCase.Execute(new GetTeacherRequest(id));
+            var result = await getTeacherUseCase.Execute(id);
 
             return _actionResultConverter.Convert(result);
         }
@@ -49,7 +43,7 @@ namespace CriEduc.School.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Search([FromQuery] SearchTeacherRequest request, [FromServices] ISearchTeacherUseCase searchTeacherUseCase)
         {
-            var result = await searchTeacherUseCase.Execute(request);
+            var result = await searchTeacherUseCase.Execute(request);                        
 
             return _actionResultConverter.Convert(result);
         }
@@ -61,6 +55,7 @@ namespace CriEduc.School.Api.Controllers
         [ProducesResponseType(typeof(CreateTeacherResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(CreateTeacherResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Create([FromBody] CreateTeacherRequest request, [FromServices] ICreateTeacherUseCase createTeacherUseCase)
         {
             var result = await createTeacherUseCase.Execute(request);
@@ -68,10 +63,11 @@ namespace CriEduc.School.Api.Controllers
             return _actionResultConverter.Convert(result);            
         }
 
-        [HttpPut]
-        [ProducesResponseType(typeof(CreateTeacherResponse), StatusCodes.Status200OK)]
+        [HttpPut]        
         [ProducesResponseType(typeof(CreateTeacherResponse), StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]        
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Update([FromQuery] Guid id,[FromBody] UpdateTeacherRequest request, [FromServices] IUpdateTeacherUseCase updateTeacherUseCase)
         {
             request.Id = id;
@@ -84,11 +80,11 @@ namespace CriEduc.School.Api.Controllers
         /// <summary>
         /// Delete a teacher in database        
         /// </summary>        
-        [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(CreateTeacherResponse), StatusCodes.Status200OK)]
+        [HttpDelete("{id}")]        
         [ProducesResponseType(typeof(CreateTeacherResponse), StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Delete(Guid id, [FromServices] IDeleteTeacherUseCase deleteTeacherUseCase)
         {
             var result = await deleteTeacherUseCase.Execute(id);

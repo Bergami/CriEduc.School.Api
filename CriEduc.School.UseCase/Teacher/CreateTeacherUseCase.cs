@@ -5,37 +5,28 @@ using CriEduc.School.Border.UseCases;
 using CriEduc.School.Repository.Interfaces;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Trace;
 
 namespace CriEduc.School.UseCase.Teacher
 {
-    public class CreateTeacherUseCase : ICreateTeacherUseCase
-    {        
+    public class CreateTeacherUseCase : UseCaseBase<CreateTeacherRequest, CreateTeacherResponse>, ICreateTeacherUseCase
+    {
         private readonly ITeachersRepository _teachersRepository;
-        private readonly IValidator<CreateTeacherRequest> _validator;
-        private readonly ILogger<CreateTeacherUseCase> logger;
 
-        public CreateTeacherUseCase(ITeachersRepository teachersRepository, IValidator<CreateTeacherRequest> validator)
+        public CreateTeacherUseCase(ITeachersRepository teachersRepository,
+            ILogger<CreateTeacherUseCase> logger,
+            IValidator<CreateTeacherRequest> validator,
+            Tracer tracer)
+            : base(logger, validator, tracer)
         {
             _teachersRepository = teachersRepository;
-            _validator = validator;           
         }
 
-        public async Task<UseCaseResponse<CreateTeacherResponse>> Execute(CreateTeacherRequest request)
+        protected override async Task<UseCaseResponse<CreateTeacherResponse>> ExecuteUseCaseAsync(CreateTeacherRequest request)
         {
-            try
-            {
-                await _validator.ValidateAndThrowAsync(request);
+            var result = await _teachersRepository.Save(request);
 
-                var result = await _teachersRepository.Save(request);
-
-                return new UseCaseResponse<CreateTeacherResponse>().SetSuccess(result);
-            }
-            catch (ValidationException e)
-            {
-                var errors = e.Errors.Select(x=> new ErrorMessage(x.ErrorCode, x.ErrorMessage));
-
-                return new UseCaseResponse<CreateTeacherResponse>().SetBadResquest(Message.ValidateRequest, errors);
-            }            
-        }       
+            return new UseCaseResponse<CreateTeacherResponse>().SetSuccess(result);
+        }
     }
 }

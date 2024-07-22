@@ -1,32 +1,39 @@
 ﻿using CriEduc.School.Border.Dtos.Teacher;
 using CriEduc.School.Border.Shared;
 using CriEduc.School.Border.UseCases;
+using CriEduc.School.Border.Validators;
 using CriEduc.School.Repository.Interfaces;
+using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Trace;
+using System.ComponentModel.DataAnnotations;
 
 namespace CriEduc.School.UseCase.Teacher
 {
-    public class SearchTeacherUseCase : ISearchTeacherUseCase
+    public class SearchTeacherUseCase : UseCaseBase<SearchTeacherRequest, IEnumerable<GetTeacherResponse>> ,ISearchTeacherUseCase
     {
         private readonly ITeachersRepository _teachersRepository;
-        private readonly Tracer _tracer;
-
-        private readonly ILogger<SearchTeacherUseCase> _logger;
+       
         public SearchTeacherUseCase(ITeachersRepository teachersRepository,
                                 ILogger<SearchTeacherUseCase> logger,
-                                Tracer tracer)
+                                IValidator<SearchTeacherRequest> validator,
+                                Tracer tracer): base(logger, validator, tracer)
         {
-            _teachersRepository = teachersRepository;
-            _logger = logger;
-            _tracer = tracer;
+            _teachersRepository = teachersRepository;       
         }
 
-        public async Task<UseCaseResponse<IEnumerable<GetTeacherResponse>>> Execute(SearchTeacherRequest request)
+        protected override async Task<UseCaseResponse<IEnumerable<GetTeacherResponse>>> ExecuteUseCaseAsync(SearchTeacherRequest request)
         {
-            var result = await _teachersRepository.Search(request);
+            var (result, totalCount) = await _teachersRepository.Search(request);
 
-            return new UseCaseResponse<IEnumerable<GetTeacherResponse>>().SetSuccess(result);
+            var response =  new UseCaseResponse<IEnumerable<GetTeacherResponse>>().SetSuccess(result);
+
+            // Adicionando informações aos cabeçalhos
+            response.Headers.Add("X-Total-Count", totalCount.ToString());
+            response.Headers.Add("X-Data-Count", result.Count().ToString());
+
+            return response;
         }
     }
 }

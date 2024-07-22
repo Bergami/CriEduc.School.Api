@@ -10,6 +10,9 @@ namespace CriEduc.School.Border.Shared
         public T Result { get; private set; }
         public IEnumerable<ErrorMessage> Erros { get; private set; }
 
+        // Propriedades adicionais para os cabeçalhos
+        public Dictionary<string, string> Headers { get; } = new Dictionary<string, string>();
+
         public bool Sucess() => Erros?.All(e => string.IsNullOrWhiteSpace(e.Message)) ?? string.IsNullOrWhiteSpace(ErrorMessage);
 
         public UseCaseResponse<T> SetSuccess(T result)

@@ -7,7 +7,6 @@ namespace CriEduc.School.Border.Validators
     {
         public CreateTeacherValidation()
         {
-            // Chama o validador da classe base (TheacherRequestValidation)
             Include(new TeacherRequestValidation());
         }
     }   
