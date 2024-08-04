@@ -10,7 +10,7 @@ namespace CriEduc.School.Border.Validators
             RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.WorkPeriod).NotEmpty();
             RuleFor(x => x.Birth).NotEmpty();
-            RuleFor(x => x.Workload).NotEmpty();
+            RuleFor(x => x.Workload).NotEmpty().GreaterThan(0);
             RuleFor(x => x.Specialty).NotEmpty();
         }
     }
